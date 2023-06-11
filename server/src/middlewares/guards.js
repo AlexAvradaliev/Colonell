@@ -32,9 +32,12 @@ exports.isAuth = (req, _, next) => {
   }
 };
 
-exports.isAuthenticated = (req, _, next) => {
+exports.isAuthenticated = async (req, res, next) => {
   try {
-    if (req.session.user) {
+    const user = req.session.passport.user;
+    res.clearCookie(req.headers['cookie'].split('=')[0]);
+    if (user) {
+      req.users = user;
       next();
     } else {
       throw errorWrapper([err]);

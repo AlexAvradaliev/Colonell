@@ -265,7 +265,7 @@ exports.socialRegister = async ({ email, firstName, lastName }) => {
 
 exports.socialUser = async (id) => {
   try {
-    const user = await User.findOne({ _id: id });
+    const user = await User.findById(id);
 
     if (!user) {
       const err = {
@@ -276,7 +276,15 @@ exports.socialUser = async (id) => {
       throw errorWrapper([err]);
     }
 
-    return user;
+    return {
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      image: user.image,
+      accessToken: await createAccessToken(user._id),
+      refreshToken: await createRefreshToken(user._id)
+    };
   } catch (err) {
     throw err;
   }

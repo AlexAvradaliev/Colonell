@@ -1,18 +1,19 @@
 const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 require('dotenv').config();
 
-const { socialRegister } = require('../service/auth/authServices');
+const { socialRegister, socialUser } = require('../service/auth/authServices');
 
 passport.use(
-  new GoogleStrategy(
+  new LinkedInStrategy(
     {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL,
-      passReqToCallback: true
+      clientID: '78j38rly46j8vq',
+      clientSecret: 'QpuzuMnJQWCs3jIb',
+      callbackURL: process.env.LINKEDIN_CALLBACK_URL,
+      scope: ['r_emailaddress', 'r_liteprofile']
     },
-    async (req, accessToken, refreshToken, profile, cb) => {
+    async (token, tokenSecret, profile, done) => {
+      console.log(profile);
       const defaultUser = {
         firstName: profile.name.givenName,
         lastName: profile.name.familyName,
@@ -21,8 +22,9 @@ passport.use(
       try {
         const user = await socialRegister(defaultUser);
         if (user) {
-          req.session.user = user;
-          return cb(null, user);
+          // console.log(req)
+          // req.session.user = user;
+          return done(null, user);
         }
       } catch (error) {
         const err = {
@@ -30,18 +32,19 @@ passport.use(
           message: 'Error signing up',
           param: 'user1'
         };
-        cb(err, null);
+        done(err, null);
       }
     }
   )
 );
 
 passport.serializeUser((user, cb) => {
-  cb(null, user);
+  cb(null, user.id);
 });
 
-passport.deserializeUser(async (user, cb) => {
+passport.deserializeUser(async (id, cb) => {
   try {
+    const user = await socialUser(id);
     if (user) cb(null, user);
   } catch (error) {
     const err = {
