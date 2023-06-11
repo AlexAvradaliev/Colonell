@@ -239,3 +239,45 @@ exports.resetPassword = async (token, password) => {
     throw err;
   }
 };
+
+exports.socialRegister = async ({ email, firstName, lastName }) => {
+  try {
+    const existing = await User.findOne({ email: new RegExp(`^${email}$`, 'i') });
+
+    if (existing) {
+      return existing;
+    }
+
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      verified: true
+    });
+
+    await user.save();
+
+    return user;
+  } catch (err) {
+    throw err;
+  }
+};
+
+exports.socialUser = async (id) => {
+  try {
+    const user = await User.findOne({ _id: id });
+
+    if (!user) {
+      const err = {
+        status: 400,
+        message: 'Error signing up',
+        param: 'user4'
+      };
+      throw errorWrapper([err]);
+    }
+
+    return user;
+  } catch (err) {
+    throw err;
+  }
+};

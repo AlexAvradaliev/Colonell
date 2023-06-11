@@ -5,12 +5,21 @@ const helmet = require('helmet');
 const mongosanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const cors = require('cors');
+const session = require('express-session');
+
 const router = require('../router/v1');
 const { responseErrors } = require('../middlewares/responseErrors');
+const { auth } = require('../middlewares/guards');
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true
+  })
+);
 
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -33,7 +42,19 @@ app.use(mongosanitize());
 
 app.use(xss());
 
+app.use(
+  session({
+    secret: process.env.COOKIE_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }
+  })
+);
+
+router.use(auth());
+
 app.use('/api/v1', router);
+
 app.use(responseErrors());
 
 module.exports = app;

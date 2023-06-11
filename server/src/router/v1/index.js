@@ -1,10 +1,9 @@
 const router = require('express').Router();
 
-const { auth } = require('../../middlewares/guards');
 const localAuth = require('./authRoutes');
+const socialRoutes = require('./socialRoutes');
 
-
-router.use(auth())
+router.use('/', socialRoutes);
 router.use('/auth', localAuth);
 
 module.exports = router;

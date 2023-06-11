@@ -31,3 +31,15 @@ exports.isAuth = (req, _, next) => {
     next(err);
   }
 };
+
+exports.isAuthenticated = (req, _, next) => {
+  try {
+    if (req.session.user) {
+      next();
+    } else {
+      throw errorWrapper([err]);
+    }
+  } catch (err) {
+    next(err);
+  }
+};
