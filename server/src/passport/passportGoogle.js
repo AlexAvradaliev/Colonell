@@ -16,7 +16,7 @@ passport.use(
       const defaultUser = {
         firstName: profile.name.givenName,
         lastName: profile.name.familyName,
-        email: profile.emails[0].value
+        email: profile.emails[0].value,
       };
       try {
         const user = await socialRegister(defaultUser);
@@ -28,7 +28,7 @@ passport.use(
         const err = {
           status: 400,
           message: 'Error signing up',
-          param: 'user1'
+          param: 'user'
         };
         cb(err, null);
       }
@@ -47,7 +47,7 @@ passport.deserializeUser(async (user, cb) => {
     const err = {
       status: 400,
       message: 'Error signing up',
-      param: 'user2'
+      param: 'user'
     };
     cb(err, null);
   }

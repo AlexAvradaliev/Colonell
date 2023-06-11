@@ -36,6 +36,7 @@ exports.isAuthenticated = async (req, res, next) => {
   try {
     const user = req.session.passport.user;
     res.clearCookie(req.headers['cookie'].split('=')[0]);
+
     if (user) {
       req.users = user;
       next();

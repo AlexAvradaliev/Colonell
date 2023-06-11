@@ -98,7 +98,7 @@ exports.login = async (email, password) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      image: user.image,
+      avatar: user.avatar,
       accessToken: await createAccessToken(user._id),
       refreshToken: await createRefreshToken(user._id)
     };
@@ -164,7 +164,7 @@ exports.verifyOtp = async (email, otp) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      image: user.image,
+      avatar: user.avatar,
       accessToken: await createAccessToken(user._id),
       refreshToken: await createRefreshToken(user._id)
     };
@@ -231,7 +231,7 @@ exports.resetPassword = async (token, password) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      image: user.image,
+      avatar: user.avatar,
       accessToken: await createAccessToken(user._id),
       refreshToken: await createRefreshToken(user._id)
     };
@@ -252,7 +252,8 @@ exports.socialRegister = async ({ email, firstName, lastName }) => {
       firstName,
       lastName,
       email,
-      verified: true
+      verified: true,
+      password: generateHash().toString()
     });
 
     await user.save();
@@ -265,13 +266,13 @@ exports.socialRegister = async ({ email, firstName, lastName }) => {
 
 exports.socialUser = async (id) => {
   try {
+    console.log(id);
     const user = await User.findById(id);
-
     if (!user) {
       const err = {
         status: 400,
         message: 'Error signing up',
-        param: 'user4'
+        param: 'user'
       };
       throw errorWrapper([err]);
     }
@@ -281,7 +282,7 @@ exports.socialUser = async (id) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      image: user.image,
+      avatar: user.avatar,
       accessToken: await createAccessToken(user._id),
       refreshToken: await createRefreshToken(user._id)
     };

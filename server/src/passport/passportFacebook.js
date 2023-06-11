@@ -1,25 +1,29 @@
 const passport = require('passport');
-const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
 require('dotenv').config();
 
-const { socialRegister, socialUser } = require('../service/auth/authServices');
+const { socialRegister } = require('../service/auth/authServices');
 
 passport.use(
-  new LinkedInStrategy(
+  new FacebookStrategy(
     {
-      clientID: process.env.LINKEDIN_KEY,
-      clientSecret: process.env.LINKEDIN_SECRET,
-      callbackURL: process.env.LINKEDIN_CALLBACK_URL,
-      scope: ['r_emailaddress', 'r_liteprofile']
+      clientID: process.env.FACEBOOK_APP_ID,
+      clientSecret: process.env.FACEBOOK_SECRET,
+      callbackURL: process.env.FACEBOOK_CALLBACK_URL,
+      passReqToCallback: true,
+      profileFields: ['id', 'displayName', 'photos', 'email']
     },
-    async (token, tokenSecret, profile, done) => {
+    async (req, accessToken, refreshToken, profile, done) => {
+      const [firstName, lastName] = profile.displayName.split(' ');
       const defaultUser = {
-        firstName: profile.name.givenName,
-        lastName: profile.name.familyName,
+        firstName,
+        lastName,
         email: profile.emails[0].value
       };
+
       try {
         const user = await socialRegister(defaultUser);
+
         if (user) {
           return done(null, user);
         }
@@ -36,12 +40,11 @@ passport.use(
 );
 
 passport.serializeUser((user, cb) => {
-  cb(null, user.id);
+  cb(null, user);
 });
 
-passport.deserializeUser(async (id, cb) => {
+passport.deserializeUser(async (user, cb) => {
   try {
-    const user = await socialUser(id);
     if (user) cb(null, user);
   } catch (error) {
     const err = {
